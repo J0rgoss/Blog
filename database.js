@@ -1,5 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('blog.db');
+const db = new sqlite3.Database(process.env.BLOG_DB_PATH || 'blog.db');
 
 db.serialize(() => {
     db.run("CREATE TABLE IF NOT EXISTS posts (id INT, title TEXT, content TEXT)");
