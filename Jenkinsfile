@@ -21,7 +21,7 @@ pipeline {
         }
         stage('Unit Tests') {
             steps {
-                sh 'docker run --rm -v "$WORKSPACE:/usr/src/app" -w /usr/src/app node:20-alpine 
+                sh 'docker run --rm -v "$WORKSPACE:/usr/src/app" -w /usr/src/app node:20-alpine'
                 sh -c "apk add --no-cache python3 py3-pip build-base && npm ci && npm test"'
             }
         }
