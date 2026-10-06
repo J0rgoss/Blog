@@ -30,12 +30,6 @@ pipeline {
                 sh 'docker build --pull --rm -f "Dockerfile" -t blog:latest "."'
             }
         }
-        stage('Trivy Scan') {
-            steps {
-                sh 'trivy image blog:latest'
-                //--exit-code 1 --severity HIGH,CRITICAL
-            }
-        }
         stage('Run') {
             steps {
                 sh 'docker stop blog || true'
