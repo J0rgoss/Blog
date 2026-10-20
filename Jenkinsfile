@@ -10,12 +10,12 @@ pipeline {
             steps {
                 dependencyCheck(
                     odcInstallation: 'Dependency-Check',
-                    additionalArguments: '--project "Blog" --scan . --format XML --out dependency-check-reports --failOnCVSS 7'
+                    additionalArguments: '--project "Blog" --scan . --format XML --out . --failOnCVSS 7'
                 )
             }
             post {
                 always {
-                    dependencyCheckPublisher pattern: 'dependency-check-reports/dependency-check-report.xml'
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
                 }
             }
         }
