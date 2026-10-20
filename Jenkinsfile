@@ -8,10 +8,7 @@ pipeline {
         }
         stage('OWASP Dependency Check') {
             steps {
-                dependencyCheck(
-                    odcInstallation: 'Dependency-Check',
-                    additionalArguments: '--project "Blog" --scan . --format XML --out . --failOnCVSS 7'
-                )
+                sh 'docker run --rm -v "$WORKSPACE:/src" owasp/dependency-check:latest --project "Blog" --scan /src --format XML --out /src --failOnCVSS 7'
             }
             post {
                 always {
