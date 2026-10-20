@@ -107,10 +107,44 @@ test('valid login sets an HTTP-only session cookie', async () => {
     assert.match(response.headers.get('set-cookie'), /sessionId=.*HttpOnly/);
 });
 
+test('login rejects SQL syntax in the username instead of authenticating another account', async () => {
+    const response = await postForm('/auth/login', {
+        username: "alice' --",
+        password: 'correct-horse'
+    });
+    assert.equal(response.status, 200);
+    assert.match(await response.text(), /Invalid username or password/);
+});
+
+test('session lookup does not authenticate a forged SQL condition in the cookie', async () => {
+    const injectedSessionId = encodeURIComponent("not-a-session' OR '1'='1'--");
+    const response = await request('/', {
+        headers: { cookie: `sessionId=${injectedSessionId}` }
+    });
+    assert.equal(response.status, 302);
+    assert.equal(response.headers.get('location'), '/auth/login');
+});
+
 test('invalid login displays an authentication error', async () => {
     const response = await postForm('/auth/login', { username: 'alice', password: 'wrong-password' });
     assert.equal(response.status, 200);
     assert.match(await response.text(), /Invalid username or password/);
+});
+
+test('preview does not return untrusted input as executable HTML', async () => {
+    const payload = '<script>document.body.dataset.xss="triggered"</script>';
+    const response = await request(`/preview?${new URLSearchParams({ html: payload })}`);
+    const html = await response.text();
+    assert.equal(response.status, 200);
+    assert.doesNotMatch(html, /<script\b/i);
+});
+
+test('file listing does not execute shell syntax supplied in the path', async () => {
+    const marker = 'COMMAND_INJECTION_MARKER';
+    const response = await request(`/list-files?${new URLSearchParams({ path: `.;printf ${marker}` })}`);
+    const output = await response.text();
+    assert.equal(response.status, 200);
+    assert.doesNotMatch(output, new RegExp(marker));
 });
 
 test('logout clears the session cookie and redirects to login', async () => {
