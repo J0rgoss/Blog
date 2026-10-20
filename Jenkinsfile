@@ -8,9 +8,11 @@ pipeline {
         }
         stage('OWASP Dependency Check') {
             steps {
-                withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
-                    sh 'docker run --rm -v "$WORKSPACE:/src" owasp/dependency-check:latest --project "Blog" --scan /src --format XML --out /src --nvdApiKey "$NVD_API_KEY" --failOnCVSS 7'
-                }
+                dependencyCheck(
+                    odcInstallation: 'Dependency-Check',
+                    nvdCredentialsId: 'nvd-api-key',
+                    additionalArguments: '--failOnCVSS 7'
+                )
             }
             post {
                 always {
