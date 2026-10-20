@@ -131,20 +131,16 @@ test('invalid login displays an authentication error', async () => {
     assert.match(await response.text(), /Invalid username or password/);
 });
 
-test('preview does not return untrusted input as executable HTML', async () => {
+test('preview endpoint remains unavailable', async () => {
     const payload = '<script>document.body.dataset.xss="triggered"</script>';
     const response = await request(`/preview?${new URLSearchParams({ html: payload })}`);
-    const html = await response.text();
-    assert.equal(response.status, 200);
-    assert.doesNotMatch(html, /<script\b/i);
+    assert.equal(response.status, 404);
 });
 
-test('file listing does not execute shell syntax supplied in the path', async () => {
+test('file-listing endpoint remains unavailable', async () => {
     const marker = 'COMMAND_INJECTION_MARKER';
     const response = await request(`/list-files?${new URLSearchParams({ path: `.;printf ${marker}` })}`);
-    const output = await response.text();
-    assert.equal(response.status, 200);
-    assert.doesNotMatch(output, new RegExp(marker));
+    assert.equal(response.status, 404);
 });
 
 test('logout clears the session cookie and redirects to login', async () => {

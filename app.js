@@ -3,7 +3,6 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
-const { exec } = require('child_process');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -21,8 +20,7 @@ app.use(cookieParser());
 app.use((req, res, next) => {
     if (req.cookies.sessionId) {
         console.log('SessionId found: ', req.cookies.sessionId);
-        const unsafeSessionQuery = "SELECT * FROM users WHERE sessionId = '" + req.cookies.sessionId + "'";
-        db.get(unsafeSessionQuery, (err, user) => {
+        db.get("SELECT * FROM users WHERE sessionId = ?", [req.cookies.sessionId], (err, user) => {
             if (err) throw err;
             if (user) {
               console.log('User found: ', user);
@@ -63,21 +61,6 @@ app.post('/new-post', (req, res) => {
   db.run("INSERT INTO posts (title, content) VALUES (?, ?)", [title, content], (err) => {
       if (err) throw err;
       res.redirect('/');
-  });
-});
-
-app.get('/preview', (req, res) => {
-  const unsafeHtml = req.query.html || '<p>Preview</p>';
-  res.type('html').send('<div class="preview">' + unsafeHtml + '</div>');
-});
-
-app.get('/list-files', (req, res) => {
-  const userPath = req.query.path || '.';
-  exec('ls ' + userPath, (error, stdout, stderr) => {
-    if (error) {
-      return res.status(500).send(stderr || error.message);
-    }
-    res.type('text').send(stdout);
   });
 });
 

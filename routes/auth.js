@@ -10,8 +10,7 @@ router.get('/login', (req, res) => {
 
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
-    const unsafeLoginQuery = "SELECT * FROM users WHERE username = '" + username + "'";
-    db.get(unsafeLoginQuery, (err, user) => {
+    db.get("SELECT * FROM users WHERE username = ?", [username], (err, user) => {
         if (err) throw err;
         if (user && bcrypt.compareSync(password, user.password)) {
             const sessionId = crypto.createHash('sha256').update(user.username).digest('hex');
