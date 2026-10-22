@@ -11,7 +11,7 @@ pipeline {
                 dependencyCheck(
                     odcInstallation: 'Dependency-Check',
                     nvdCredentialsId: 'nvd-api-key',
-                    additionalArguments: '--data "$HOME/.dependency-check/data" --failOnCVSS 7'
+                    additionalArguments: '--scan .'
                 )
             }
             post {
